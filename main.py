@@ -1,6 +1,6 @@
 from sorter import Sorter
 
-sorter = Sorter((1000,600))
+sorter = Sorter((800,600))
 sorter.generateList()
 
 

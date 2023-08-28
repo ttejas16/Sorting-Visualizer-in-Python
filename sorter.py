@@ -11,6 +11,7 @@ class Sorter:
         self.INSERTION_SORT_INTERVAL = 0.05
         self.SELECTION_SORT_INTERVAL = 0.02
         self.QUICK_SORT_INTERVAL = 0.1
+        self.MERGE_SORT_INTERVAL = 0.05
 
         self.SCALE_Y = (0.75 * WINDOW_SIZE[1]) // 100
         self.BOTTOM_OFFSET = 5
@@ -22,7 +23,7 @@ class Sorter:
         
         self.window = self.initialize()
 
-        self.avaliableSorts = ["bubbleSort","insertionSort","selectionSort","quickSort"]
+        self.avaliableSorts = ["bubbleSort","insertionSort","selectionSort","quickSort","mergeSort"]
         self.choicer = self.getChoicer()
         self.unsortedList = []
 
@@ -58,13 +59,11 @@ class Sorter:
                 pygame.quit()
                 sys.exit()
 
-            if self.showReset and event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+            if self.showReset and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     if self.resetButton[1].collidepoint(pygame.mouse.get_pos()):
                         self.handleReset()
 
-            if self.showMenu and event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+            if self.showMenu and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     for button in self.buttons:
                         if button['rectangle'].collidepoint(pygame.mouse.get_pos()):
                             self.handleChoice(button['button_name'])
@@ -133,6 +132,8 @@ class Sorter:
         
 
     def displayList(self,targetIndex = None,currentSortedIndex = None):
+        # print(targetIndex,currentSortedIndex)
+        self.checkForEvents()
         for i in range(len(self.unsortedList)):
             if targetIndex and i == targetIndex:
                 self.drawPygameRect(
@@ -155,7 +156,6 @@ class Sorter:
            
 
     def finalSortedDisplay(self):
-
         for i in range(len(self.unsortedList)):
             for j in range(len(self.unsortedList)):
                 if j <= i:
@@ -170,6 +170,7 @@ class Sorter:
                                 self.OFFSET + (j * (self.RECT_WIDTH + self.OFFSET)),
                                 self.unsortedList[j] + (self.unsortedList[j] * self.SCALE_Y)
                             ) 
+            self.checkForEvents()
             self.updateDisplay()
             time.sleep(0.02)
             self.resetDisplay()
@@ -299,4 +300,60 @@ class Sorter:
     
         self.sorted = True  
         self.quickSortHelper(0,len(self.unsortedList) - 1)
+
+
+    def mergeSortHelper(self,low,mid,high):
+        i = low
+        j = mid + 1
+        k = low
+
+        arr = [0]*len(self.unsortedList)
+
+        while i <= mid and j <= high:
+            if self.unsortedList[i] >= self.unsortedList[j]:
+                arr[k] = self.unsortedList[j]
+                k += 1
+                j += 1
+            else:
+                arr[k] = self.unsortedList[i]
+                k += 1
+                i += 1
+                
+            self.displayList(i,j)
+            self.updateDisplay()
+            time.sleep(self.MERGE_SORT_INTERVAL)
+
+        
+        while i <= mid:
+            arr[k] = self.unsortedList[i]
+            k += 1
+            i += 1            
+
+        while j <= high:
+            arr[k] = self.unsortedList[j]
+            k += 1
+            j += 1   
+
+        for z in range(low,high + 1):
+            self.unsortedList[z] = arr[z]
+
+            self.displayList(z,z - 1)
+            time.sleep(0.02)
+            self.updateDisplay()
+            self.resetDisplay()         
+
+
+    def divide(self,lb,ub):
+        if lb != ub:
+            mid = (lb + ub) // 2
+            self.divide(lb,mid)
+            self.divide(mid + 1,ub)
+            self.mergeSortHelper(lb,mid,ub)
+
+
+    def mergeSort(self):
+        self.sorted = True 
+        self.divide(0,len(self.unsortedList) - 1)
+
+
 
