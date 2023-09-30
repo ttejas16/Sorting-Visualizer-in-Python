@@ -1,6 +1,7 @@
 from sorter import Sorter
 
-sorter = Sorter((800,600))
+# set window size according to preference 1000 x 600 works great
+sorter = Sorter((1000,600))
 sorter.generateList()
 
 
@@ -21,6 +22,7 @@ while True:
             sorter.sorted = False
             sorter.showReset = True
             sorter.finalSortedDisplay()
+            sorter.updateDisplay()
 
     sorter.checkForEvents()
     sorter.updateDisplay()
