@@ -7,6 +7,7 @@ class Sorter:
         self.RECT_WIDTH = 10
         self.OFFSET = 2
         
+        self.TIMSORT_RUN = 16
         self.BUBBLE_SORT_INTERVAL = 0.02
         self.INSERTION_SORT_INTERVAL = 0.05
         self.SELECTION_SORT_INTERVAL = 0.02
@@ -23,7 +24,7 @@ class Sorter:
         
         self.window = self.initialize()
 
-        self.avaliableSorts = ["bubbleSort","insertionSort","selectionSort","quickSort","mergeSort"]
+        self.avaliableSorts = ["bubbleSort","insertionSort","selectionSort","quickSort","mergeSort","timSort"]
         self.choicer = self.getChoicer()
         self.unsortedList = []
 
@@ -80,7 +81,7 @@ class Sorter:
 
         for sort in self.avaliableSorts:
             txt = self.font.render(f"{index}. {sort}",True,self.WHITE)
-            txtRect = txt.get_rect(topleft=(50,50 + index*35))
+            txtRect = txt.get_rect(topleft=(50,50 + index * 50))
             res.append({'text':txt,'rectangle':txtRect,'button_name':sort})
             index += 1
         return res
@@ -189,6 +190,7 @@ class Sorter:
         self.showMenu = False
         func = self.choicer[choice]
         # self.buttons.clear()
+        time.sleep(0.3)
         func()
             
 
@@ -214,7 +216,6 @@ class Sorter:
 
 
     def insertionSort(self):
-        
         if not self.checkValidList() :
             return;
         
@@ -223,7 +224,7 @@ class Sorter:
         for i in range(len(self.unsortedList)):
             key = self.unsortedList[i]
             j = i - 1
-            while( j > -1 and self.unsortedList[j] > key):
+            while j > -1 and self.unsortedList[j] > key:
                 self.unsortedList[j + 1] = self.unsortedList[j]
                 j -= 1
                 self.displayList(j,i)
@@ -234,6 +235,7 @@ class Sorter:
 
 
     def selectionSort(self):
+        
         if not self.checkValidList() :
             return;
     
@@ -352,8 +354,51 @@ class Sorter:
 
 
     def mergeSort(self):
+        if not self.checkValidList():
+            return
+        
         self.sorted = True 
         self.divide(0,len(self.unsortedList) - 1)
+        
+
+    def timInsertionSort(self,start:int,end:int):
+        for i in range(start + 1,end + 1):
+            
+            temp = self.unsortedList[i]
+            j = i - 1
+            
+            while j >= start and self.unsortedList[j] > temp:
+                self.unsortedList[j + 1] = self.unsortedList[j]
+                j -= 1
+
+                self.displayList(j,i)
+                time.sleep(self.INSERTION_SORT_INTERVAL)
+                self.updateDisplay()
+            
+            self.unsortedList[j + 1] = temp
+            self.resetDisplay()
+    
+
+    def timSort(self):
+        if not self.checkValidList():
+            return
+        
+        self.sorted = True
+
+        for i in range(0,len(self.unsortedList),self.TIMSORT_RUN):
+            self.timInsertionSort(i,min(i + self.TIMSORT_RUN - 1, len(self.unsortedList) - 1))
 
 
+        i = self.TIMSORT_RUN
+        while i < len(self.unsortedList):
+            for j in range(0,len(self.unsortedList),2 * i):
+                
+                mid = j + i - 1
+                end = min(j + (2 * i) - 1,len(self.unsortedList) - 1)
 
+                if mid < end:
+                    self.mergeSortHelper(j, mid, end)
+
+            i = 2 * i
+
+            
